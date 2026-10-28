@@ -9,6 +9,7 @@ import {
   Plus,
   X,
   Tag,
+  CheckCircle,
 } from 'lucide-react'
 
 const PROJECT_COLORS = [
@@ -42,6 +43,7 @@ export default function HourlyEntry() {
 
   const [metric, setMetric] = useState('')
   const [value, setValue] = useState('')
+  const [workDescription, setWorkDescription] = useState('')
   const [hour, setHour] = useState(new Date().getHours())
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState('')
@@ -111,57 +113,6 @@ export default function HourlyEntry() {
     loadUser()
   }, [router])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
-    if (!metric || value === '') {
-      setError('Please select a project and enter a value')
-      return
-    }
-
-    setSaving(true)
-    try {
-      const entryDate = new Date(date)
-      entryDate.setHours(parseInt(hour), 0, 0, 0)
-      const entryDateString = entryDate.toISOString().slice(0, 10)
-
-      const res = await fetch('/api/performance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          metric,
-          value: Number(value),
-          date: entryDateString,
-          notes,
-          category,
-          userId: onBehalfId || undefined,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Failed to save entry')
-        setSaving(false)
-        return
-      }
-      if (onBehalfId) {
-        const member = teamMembers.find((m) => m.id === onBehalfId)
-        setSuccess('Entry saved for ' + (member ? member.name : 'member') + ' — awaiting leader approval before it counts')
-      } else {
-        setSuccess('Entry submitted — it counts in stats once your team lead approves it')
-      }
-      setValue('')
-      setNotes('')
-      setOnBehalfId('')
-      setTimeout(() => setSuccess(''), 4000)
-    } catch (err) {
-      setError('Server error')
-      setSaving(false)
-    } finally {
-      setSaving(false)
-    }
-  }
-
   // Team Lead / Manager / CEO can add a new project on the fly
   const handleAddProject = async () => {
     setAddProjectError('')
@@ -184,6 +135,7 @@ export default function HourlyEntry() {
         setAddingProject(false)
         return
       }
+      // Add to local state and select it
       setProjects((prev) => [...prev, data.project])
       setMetric(data.project.slug)
       setNewProjectName('')
@@ -195,6 +147,63 @@ export default function HourlyEntry() {
       setAddProjectError('Server error')
     }
     setAddingProject(false)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+    if (!metric || value === '') {
+      setError('Please select a project and enter a numeric value')
+      return
+    }
+    if (!workDescription.trim()) {
+      setError('Please enter a work description')
+      return
+    }
+
+    setSaving(true)
+    try {
+      const entryDate = new Date(date)
+      entryDate.setHours(parseInt(hour), 0, 0, 0)
+      const entryDateString = entryDate.toISOString().slice(0, 10)
+
+      const res = await fetch('/api/performance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          metric,
+          value: Number(value),
+          workDescription,
+          date: entryDateString,
+          notes,
+          category,
+          userId: onBehalfId || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Failed to save entry')
+        setSaving(false)
+        return
+      }
+      if (onBehalfId) {
+        const member = teamMembers.find((m) => m.id === onBehalfId)
+        setSuccess('Entry saved for ' + (member ? member.name : 'member') + ' — awaiting leader approval before it counts')
+      } else {
+        setSuccess('Entry submitted — it counts in stats once your team lead approves it')
+      }
+      setValue('')
+      setWorkDescription('')
+      setNotes('')
+      setOnBehalfId('')
+      setTimeout(() => setSuccess(''), 4000)
+    } catch (err) {
+      setError('Server error')
+      setSaving(false)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -374,9 +383,9 @@ export default function HourlyEntry() {
                 )}
               </div>
 
-              {/* Value */}
+              {/* Numeric Value */}
               <div className="flex flex-col">
-                <label className="block text-sm font-medium text-slate-700 mb-3">Value</label>
+                <label className="block text-sm font-medium text-slate-700 mb-3">Numeric Value <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input
                     type="number"
@@ -391,6 +400,21 @@ export default function HourlyEntry() {
                     {value}
                   </div>
                 </div>
+                <p className="text-xs text-slate-500 mt-1">Numeric value for calculations (e.g. 5, 10.5, 100)</p>
+              </div>
+
+              {/* Work Description */}
+              <div className="flex flex-col md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-3">Work Description <span className="text-red-500">*</span></label>
+                <textarea
+                  rows={2}
+                  className="w-full pl-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all bg-white"
+                  placeholder="What did you work on? (e.g. 'Completed HPE batch processing for client X', 'Reviewed 50 QA items for Monthly Events Spot Collection')"
+                  value={workDescription}
+                  onChange={(e) => setWorkDescription(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-slate-500 mt-1">Describe what you actually did — this text is shown in reports and notifications</p>
               </div>
 
               {/* Hour */}
@@ -451,40 +475,27 @@ export default function HourlyEntry() {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-4 rounded-xl transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 disabled:opacity-70"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" />
-                  Save Hourly Entry
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-
-        {/* Info Card */}
-        <div className="mt-6 bg-blue-50 border border-blue-100 rounded-2xl p-6">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div>
-              <h4 className="text-sm font-bold text-slate-800 mb-1">How Hourly Entry Works</h4>
-              <ul className="text-sm text-slate-600 space-y-1 list-disc list-inside">
-                <li>Log your performance data every hour or at the end of your shift</li>
-                <li>Select the appropriate metric (Tasks, Sales, Quality, etc.)</li>
-                <li>Managers and Team Leads can see all team entries</li>
-                <li>AI Reports analyze all logged data for insights</li>
-              </ul>
+            {/* Submit */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all disabled:opacity-70"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Submit Entry
+                  </>
+                )}
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </Layout>
