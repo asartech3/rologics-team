@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Not authenticated' })
   }
 
-  const users = getUsers()
+  const users = await getUsers()
 
   if (req.method === 'DELETE') {
     // HARD RULE: only CEO and Manager can remove employees
@@ -26,17 +26,17 @@ export default async function handler(req, res) {
     }
 
     // Remove the user's data so stats stay consistent
-    const entries = getPerformance().filter((e) => e.userId === id)
-    entries.forEach((e) => deletePerformanceEntry(e.id))
+    const entries = (await getPerformance()).filter((e) => e.userId === id)
+    for (const e of entries) await deletePerformanceEntry(e.id)
 
-    const reports = getReports().filter((r) => r.userId === id)
-    reports.forEach((r) => deleteReport(r.id))
+    const reports = (await getReports()).filter((r) => r.userId === id)
+    for (const r of reports) await deleteReport(r.id)
 
-    deleteUser(id)
+    await deleteUser(id)
 
     // Remove the matching profile
-    const profile = (getProfiles() || []).find((p) => p.userId === id)
-    if (profile && typeof deleteProfile === 'function') deleteProfile(profile.id)
+    const profile = (await getProfiles() || []).find((p) => p.userId === id)
+    if (profile) await deleteProfile(profile.id)
 
     return res.status(200).json({ ok: true, removedEntries: entries.length })
   }
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Forbidden: only CEO, Manager, or Team Lead can reset passwords' })
     }
 
-    updateUser(userId, { passwordHash: hashPassword(newPassword) })
+    await updateUser(userId, { passwordHash: hashPassword(newPassword) })
     return res.status(200).json({ ok: true })
   }
 

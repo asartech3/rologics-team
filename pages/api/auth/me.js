@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Not authenticated' })
   }
 
-  const user = getUserById(session.id)
+  const user = await getUserById(session.id)
   if (!user) {
     return res.status(401).json({ error: 'User not found' })
   }

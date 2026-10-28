@@ -9,7 +9,11 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ error: 'Not authenticated' })
 
   if (req.method === 'GET') {
-    const mine = getNotifications()
+    const all = await getNotifications()
+    if (!Array.isArray(all)) {
+      return res.status(500).json({ error: 'getNotifications returned ' + typeof all, all: String(all).substring(0, 200) })
+    }
+    const mine = all
       .filter((n) => (n.userIds || []).includes(session.id))
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 30)
@@ -29,7 +33,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'PATCH') {
     const { ids } = req.body || {}
-    markNotificationsRead(session.id, ids || null)
+    await markNotificationsRead(session.id, ids || null)
     return res.status(200).json({ ok: true })
   }
 

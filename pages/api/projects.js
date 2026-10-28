@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   // Members / leads see global projects + their own team's projects.
   // CEO & Manager see everything, incl. team-specific ones.
   if (req.method === 'GET') {
-    const all = getProjects()
+    const all = await getProjects()
     const visible = all.filter((p) => {
       if (!p.team) return true // global project
       if (session.role === ROLES.CEO || session.role === ROLES.MANAGER) return true
@@ -54,12 +54,12 @@ export default async function handler(req, res) {
 
     const trimmed = String(name).trim()
     const slug = slugify(trimmed)
-    const existing = getProjects().find((p) => p.slug === slug)
+    const existing = (await getProjects()).find((p) => p.slug === slug)
     if (existing) {
       return res.status(409).json({ error: 'That project already exists', project: existing })
     }
 
-    const project = createProject({
+    const project = await createProject({
       name: trimmed,
       team: projectTeam,
       createdBy: session.id,

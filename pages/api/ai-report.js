@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   // Get performance data based on access level
   // CEO/Manager: all teams; Team Lead: their own team; Assisting Lead: their own team; Members: own data
-  let entries = getPerformance()
+  let entries = await getPerformance()
   if (canViewAllReports(session)) {
     if (team && team !== 'all') entries = entries.filter((e) => e.team === team)
   } else if (canViewTeamReports(session) || session.role === ROLES.ASSISTING_LEAD) {
@@ -55,8 +55,8 @@ export default async function handler(req, res) {
     entries = entries.filter((e) => e.userId === memberId)
   }
 
-  const users = getUsers()
-  const profiles = getProfiles()
+  const users = await getUsers()
+  const profiles = await getProfiles()
   const focusUserName = (type === 'individual_performance' && memberId)
     ? (users.find((u) => u.id === memberId) || {}).name || '' : null
 
@@ -96,9 +96,11 @@ export default async function handler(req, res) {
     byUser[e.userId].entries.push({ metric: e.metric, value: e.value, date: e.date })
   })
 
+  const aiProjects = await getProjects()
+
   const metricList = Object.entries(byMetric).map(([metric, data]) => ({
     // real project name when known, else titled slug: "monthly-events-qa" → "Monthly Events QA"
-    metric: prettyMetric(getProjects(), metric),
+    metric: prettyMetric(aiProjects, metric),
     count: data.count,
     total: data.total,
     avg: data.count ? Math.round((data.total / data.count) * 100) / 100 : 0,

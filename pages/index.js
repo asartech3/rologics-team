@@ -117,6 +117,9 @@ export default function Login() {
           )}
           <h1 className="text-5xl font-bold text-slate-900 tracking-tight mt-8 relative z-10">
             Rolo<span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-emerald-500">Team</span>
+            <span className="ml-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold border border-amber-200 self-start mt-0.5">
+              Beta v0.58.2
+            </span>
           </h1>
           <p className="text-slate-500 mt-2 text-lg">Performance. Measured. Simplified.</p>
           <div className="flex items-center gap-6 mt-8 text-xs text-slate-600">
@@ -143,7 +146,7 @@ export default function Login() {
                   className="w-16 h-16 object-contain drop-shadow-lg"
                 />
               )}
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-4">Rolo<span className="text-emerald-500">Team</span></h1>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-4">Rolo<span className="text-emerald-500">Team</span> <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold border border-amber-200">Beta v0.58.2</span></h1>
             </div>
 
             <h2 className="text-xl lg:text-2xl font-bold text-slate-900 mb-1">Welcome back</h2>

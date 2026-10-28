@@ -2,8 +2,8 @@ import { getSessionFromReq, ROLES, canViewAllReports, canViewTeamReports } from 
 import { getPerformance, getPerformanceById, createPerformanceEntry, updatePerformanceEntry, deletePerformanceEntry, getUsers, createNotification, getProjects } from '../../lib/db'
 
 // Real project name when known ("HPE"), else titled slug ("Monthly Events QA")
-function prettyMetric(slug) {
-  const p = getProjects().find((x) => x.slug === slug)
+function prettyMetric(projects, slug) {
+  const p = projects.find((x) => x.slug === slug)
   return p ? p.name : String(slug || '').split(/[-_]/).map((w) => w && w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
 
@@ -13,8 +13,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Not authenticated' })
   }
 
+  const projects = await getProjects()
+
   if (req.method === 'GET') {
-    let entries = getPerformance()
+    let entries = await getPerformance()
     const { team, userId, metric, dateFrom, dateTo } = req.query
 
     // CEO and Manager see all teams; Team Lead sees their team; Members see only their own
@@ -53,7 +55,8 @@ export default async function handler(req, res) {
       if (!(isCEOorMgr || session.role === ROLES.TEAM_LEAD)) {
         return res.status(403).json({ error: 'Forbidden: only leaders can log entries on behalf of members' })
       }
-      const target = getUsers().find((u) => u.id === userId)
+      const users = await getUsers()
+      const target = users.find((u) => u.id === userId)
       if (!target) return res.status(404).json({ error: 'Member not found' })
       if (target.role === ROLES.CEO || target.role === ROLES.MANAGER) {
         return res.status(403).json({ error: 'Invalid member for on-behalf entries' })
@@ -76,7 +79,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Team required' })
     }
 
-    const entry = createPerformanceEntry({
+    const entry = await createPerformanceEntry({
       userId: entryUserId,
       team: entryTeam,
       metric,
@@ -88,30 +91,31 @@ export default async function handler(req, res) {
     })
 
     // Notify the leaders who can approve this entry
-    const approvers = getUsers().filter(
+    const users = await getUsers()
+    const approvers = users.filter(
       (u) => u.id !== entryUserId && (
         u.role === ROLES.CEO || u.role === ROLES.MANAGER ||
         (u.role === ROLES.TEAM_LEAD && u.team === entryTeam)
       )
     )
     if (approvers.length) {
-      createNotification({
+      await createNotification({
         userIds: approvers.map((u) => u.id),
         title: onBehalf ? 'Entry Logged On Behalf' : 'New Performance Entry',
         message: onBehalf
-          ? session.name + ' logged ' + prettyMetric(metric) + ' on behalf of ' + (getUsers().find((u) => u.id === entryUserId) || {}).name + ' — awaiting approval'
-          : session.name + ' logged ' + prettyMetric(metric) + ' — awaiting approval',
+          ? session.name + ' logged ' + prettyMetric(projects, metric) + ' on behalf of ' + (users.find((u) => u.id === entryUserId) || {}).name + ' — awaiting approval'
+          : session.name + ' logged ' + prettyMetric(projects, metric) + ' — awaiting approval',
         type: 'entry',
       })
     }
     // Tell the member when someone logged it for them
     if (onBehalf) {
-      const member = getUsers().find((u) => u.id === entryUserId)
+      const member = users.find((u) => u.id === entryUserId)
       if (member) {
-        createNotification({
+        await createNotification({
           userIds: [entryUserId],
           title: 'Entry Logged For You',
-          message: session.name + ' logged ' + prettyMetric(metric) + ' on your behalf — it counts once a leader approves it',
+          message: session.name + ' logged ' + prettyMetric(projects, metric) + ' on your behalf — it counts once a leader approves it',
           type: 'entry',
         })
       }
@@ -122,7 +126,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     const { id, ...updates } = req.body || {}
-    const existing = getPerformanceById(id)
+    const existing = await getPerformanceById(id)
     if (!existing) return res.status(404).json({ error: 'Not found' })
 
     const isCEOOrManager = session.role === ROLES.CEO || session.role === ROLES.MANAGER
@@ -139,14 +143,14 @@ export default async function handler(req, res) {
       if (!(isCEOOrManager || isLeadOfTeam)) cleanUpdates = { ...updates, status: 'pending' }
     }
 
-    const updated = updatePerformanceEntry(id, cleanUpdates)
+    const updated = await updatePerformanceEntry(id, cleanUpdates)
 
     // Notify the member when a leader reviews their entry
     if ('status' in cleanUpdates && (isCEOOrManager || isLeadOfTeam) && existing.userId !== session.id) {
       const statusNote =
         cleanUpdates.status === 'approved' ? 'approved your entry' :
         cleanUpdates.status === 'rejected' ? 'rejected your entry' : 'reviewed your entry'
-      createNotification({
+      await createNotification({
         userIds: [existing.userId],
         title: 'Entry ' + (cleanUpdates.status || 'reviewed').charAt(0).toUpperCase() + (cleanUpdates.status || '').slice(1),
         message: session.name + ' ' + statusNote,
@@ -159,7 +163,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'DELETE') {
     const { id } = req.query
-    const existing = getPerformanceById(id)
+    const existing = await getPerformanceById(id)
     if (!existing) return res.status(404).json({ error: 'Not found' })
 
     const allowed =
@@ -170,7 +174,7 @@ export default async function handler(req, res) {
 
     if (!allowed) return res.status(403).json({ error: 'Forbidden' })
 
-    deletePerformanceEntry(id)
+    await deletePerformanceEntry(id)
     return res.status(200).json({ ok: true })
   }
 

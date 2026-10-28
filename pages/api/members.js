@@ -11,8 +11,8 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Not authenticated' })
   }
 
-  const users = getUsers()
-  const profiles = getProfiles()
+  const users = await getUsers()
+  const profiles = await getProfiles()
   const { team, includeSelf } = req.query
 
   let filtered = users.filter((u) => u.role !== ROLES.CEO && u.role !== ROLES.MANAGER)

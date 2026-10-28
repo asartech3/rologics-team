@@ -88,6 +88,9 @@ export default function Sidebar({ user, open, onClose, collapsed, onToggleCollap
                   Rolo<span className="text-indigo-600">Team</span>
                 </span>
                 <span className="text-xs text-slate-500">team.rologicsinfolabs.com</span>
+                <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold border border-amber-200">
+                  Beta v0.58.2
+                </span>
               </div>
             </Link>
             <button

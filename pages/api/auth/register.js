@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'employeeId, name, role required' })
   }
 
-  if (getUserByEmployeeId(employeeId)) {
+  if (await getUserByEmployeeId(employeeId)) {
     return res.status(409).json({ error: 'Employee ID already exists' })
   }
 
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
 
   const autoPassword = password || `Rolo${Math.floor(1000 + Math.random() * 9000)}!`
 
-  const user = createUser({
+  const user = await createUser({
     employeeId,
     passwordHash: hashPassword(autoPassword),
     name,

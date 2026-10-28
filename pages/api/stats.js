@@ -17,8 +17,8 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Not authenticated' })
   }
 
-  const entries = getPerformance()
-  const users = getUsers()
+  const entries = await getPerformance()
+  const users = await getUsers()
 
   // CEO and Manager see all; Team Lead sees their team; Members see only their own
   let filtered = entries
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   const pendingCount = filtered.filter((e) => e.status === 'pending').length
 
   // Aggregate by metric
-  const projects = getProjects()
+  const projects = await getProjects()
   const byMetric = {}
   approved.forEach((e) => {
     if (!byMetric[e.metric]) byMetric[e.metric] = { count: 0, total: 0 }

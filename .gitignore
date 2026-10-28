@@ -19,3 +19,4 @@ db/data.json.tmp
 .DS_Store
 Thumbs.db
 *.log
+.neon

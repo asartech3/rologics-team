@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Not authenticated' })
   }
 
-  const users = getUsers()
+  const users = await getUsers()
 
   const teams = Object.values(TEAMS).map((teamCode) => {
     const members = users.filter((u) => u.team === teamCode && u.role !== ROLES.CEO && u.role !== ROLES.MANAGER)

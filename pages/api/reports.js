@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    let reports = getReports()
+    let reports = await getReports()
     // CEO, Manager, Team Lead see all reports; Members see only their own
     if (!canViewAllReports(session)) {
       reports = reports.filter((r) => r.userId === session.id)
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     // CEO, Manager, Team Lead can generate reports for any team; Members for themselves
     const reportTeam = canViewAllReports(session) ? (team || null) : session.team
 
-    const report = createReport({
+    const report = await createReport({
       userId: session.id,
       team: reportTeam,
       title,

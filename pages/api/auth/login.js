@@ -1,4 +1,4 @@
-import { getUserByEmployeeId, comparePassword } from '../../../lib/db'
+import { getUserByEmployeeId } from '../../../lib/db'
 import { comparePassword as cmp, signToken, setAuthCookie } from '../../../lib/auth'
 
 export default async function handler(req, res) {
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Employee ID and password required' })
   }
 
-  const user = getUserByEmployeeId(employeeId)
+  const user = await getUserByEmployeeId(employeeId)
   if (!user || !(await cmp(password, user.passwordHash))) {
     return res.status(401).json({ error: 'Invalid credentials' })
   }
