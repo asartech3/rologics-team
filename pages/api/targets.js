@@ -74,20 +74,25 @@ export default async function handler(req, res) {
     if (session.role === ROLES.TEAM_LEAD && target.team !== session.team) {
       return res.status(403).json({ error: 'Forbidden: own team only' })
     }
-    const t = await setTarget({
-      memberId,
-      metric,
-      targetValue: Number(targetValue),
-      weekStart: weekStart || ws,
-      assignedBy: session.id,
-    })
-    await createNotification({
-      userIds: [memberId],
-      title: 'New Weekly Target Assigned',
-      message: prettyMetric(projects, metric) + ' target: ' + Number(targetValue) + ' for week of ' + (t.weekStart || ws),
-      type: 'target',
-    })
-    return res.status(201).json({ target: t })
+    try {
+      const t = await setTarget({
+        memberId,
+        metric,
+        targetValue: Number(targetValue),
+        weekStart: weekStart || ws,
+        assignedBy: session.id,
+      })
+      await createNotification({
+        userIds: [memberId],
+        title: 'New Weekly Target Assigned',
+        message: prettyMetric(projects, metric) + ' target: ' + Number(targetValue) + ' for week of ' + (t.weekStart || ws),
+        type: 'target',
+      })
+      return res.status(201).json({ target: t })
+    } catch (err) {
+      console.error('Target assign error:', err)
+      return res.status(500).json({ error: 'Failed to assign target: ' + err.message })
+    }
   }
 
   return res.status(405).json({ error: 'Method not allowed' })
