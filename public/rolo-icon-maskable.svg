@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Android/iOS mask it into a circle — everything important stays inside the middle 66% -->
+  <rect width="512" height="512" fill="#ffffff"/>
+  <circle cx="256" cy="256" r="256" fill="#ffffff"/>
+  <defs>
+    <linearGradient id="mtube" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d7fd9"/>
+      <stop offset="55%" stop-color="#1d4e9e"/>
+      <stop offset="100%" stop-color="#132c5e"/>
+    </linearGradient>
+    <linearGradient id="mdotBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a8de0"/>
+      <stop offset="100%" stop-color="#173a86"/>
+    </linearGradient>
+    <linearGradient id="mdotGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#35d092"/>
+      <stop offset="100%" stop-color="#0f8a54"/>
+    </linearGradient>
+    <linearGradient id="mleg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#28c483"/>
+      <stop offset="100%" stop-color="#0d7d4d"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(256 256) scale(0.52) translate(-500 -420)">
+    <path d="M 330 103 L 590 103 A 182 182 0 0 1 590 467 L 476 467"
+          fill="none" stroke="url(#mtube)" stroke-width="104" stroke-linecap="butt"/>
+    <path d="M 388 335 L 548 335 L 806 730 L 648 730 Z" fill="url(#mleg)"/>
+    <circle cx="255" cy="103" r="60" fill="url(#mdotBlue)"/>
+    <circle cx="258" cy="645" r="64" fill="url(#mdotGreen)"/>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
+# Database snapshot (contains account data — deploy by seeding instead)
+db/backup/
+db/data.json.bak
+db/data.json.tmp
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.log

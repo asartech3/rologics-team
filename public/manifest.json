@@ -1,0 +1,24 @@
+{
+  "name": "Rolo Team — Performance Dashboard",
+  "short_name": "Rolo Team",
+  "description": "Performance management for Rolo Core & Rolo Edge teams",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1d4e9e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/rolo-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/rolo-icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

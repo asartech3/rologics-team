@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="tube" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d7fd9"/>
+      <stop offset="55%" stop-color="#1d4e9e"/>
+      <stop offset="100%" stop-color="#132c5e"/>
+    </linearGradient>
+    <linearGradient id="dotBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a8de0"/>
+      <stop offset="100%" stop-color="#173a86"/>
+    </linearGradient>
+    <linearGradient id="dotGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#35d092"/>
+      <stop offset="100%" stop-color="#0f8a54"/>
+    </linearGradient>
+    <linearGradient id="leg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#28c483"/>
+      <stop offset="100%" stop-color="#0d7d4d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- white background (full bleed) -->
+  <rect width="512" height="512" fill="#ffffff"/>
+
+  <!-- mark, centered in the mask-safe zone -->
+  <g transform="translate(256 236) scale(0.62) translate(-500 -430)">
+    <!-- blue tube: top bar of R -->
+    <path d="M 330 103 L 590 103 A 182 182 0 0 1 590 467 L 476 467"
+          fill="none" stroke="url(#tube)" stroke-width="96" stroke-linecap="butt"/>
+
+    <!-- green leg of R -->
+    <path d="M 388 335 L 548 335 L 806 730 L 648 730 Z" fill="url(#leg)"/>
+
+    <!-- blue dot top-left -->
+    <circle cx="255" cy="103" r="58" fill="url(#dotBlue)"/>
+    <!-- green dot bottom-left -->
+    <circle cx="258" cy="645" r="63" fill="url(#dotGreen)"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="256" y="452" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="58" letter-spacing="6" fill="#1a1a1a">ROLOGICS</text>
+  <text x="256" y="486" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="21" letter-spacing="13" fill="#2b2b2b">INFOLABS</text>
+</svg>
