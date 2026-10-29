@@ -88,6 +88,7 @@ export default async function handler(req, res) {
       notes: notes || '',
       category: category || 'general',
       status: 'pending',
+      workDescription: workDescription || '',
     })
 
     // Notify the leaders who can approve this entry
