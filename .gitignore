@@ -20,3 +20,6 @@ db/data.json.tmp
 Thumbs.db
 *.log
 .neon
+
+.vercel
+.env*
